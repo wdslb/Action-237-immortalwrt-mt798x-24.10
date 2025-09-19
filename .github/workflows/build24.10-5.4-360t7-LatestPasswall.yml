@@ -55,7 +55,7 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        git clone -b $REPO_BRANCH --single-branch $REPO_URL openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Load custom feeds
@@ -95,6 +95,13 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
+    - uses: actions/cache/restore@v4
+      id: cache_restore
+      with:
+        path: |
+          $GITHUB_WORKSPACE/dl
+        key: ${{ runner.os }}-${{env.CONFIG_FILE}}-${{ hashFiles(env.CONFIG_FILE) }}
+
     - name: Download package
       id: package
       run: |
@@ -103,6 +110,13 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+
+    - uses: actions/cache/save@v4
+      id: cache_save
+      with:
+        path: |
+          $GITHUB_WORKSPACE/dl
+        key: ${{ runner.os }}-${{env.CONFIG_FILE}}-${{ hashFiles(env.CONFIG_FILE) }}
 
     - name: Compile the firmware
       id: compile
