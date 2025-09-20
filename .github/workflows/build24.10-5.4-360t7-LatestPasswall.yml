@@ -99,8 +99,8 @@ jobs:
       id: cache_restore
       with:
         path: |
-          $GITHUB_WORKSPACE/dl
-        key: ${{ runner.os }}-${{env.CONFIG_FILE}}-${{ hashFiles(env.CONFIG_FILE) }}
+          dl
+        key: ${{ runner.os }}-${{github.sha}}-${{ hashFiles('/*.config') }}
 
     - name: Download package
       id: package
@@ -115,8 +115,8 @@ jobs:
       id: cache_save
       with:
         path: |
-          $GITHUB_WORKSPACE/dl
-        key: ${{ runner.os }}-${{env.CONFIG_FILE}}-${{ hashFiles(env.CONFIG_FILE) }}
+          dl
+        key: ${{ runner.os }}-${{github.sha}}-${{ hashFiles('/*.config') }}
 
     - name: Compile the firmware
       id: compile
@@ -190,7 +190,7 @@ jobs:
       uses: dev-drprasad/delete-older-releases@master
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 12
+        keep_latest: 3
         delete_tags: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
